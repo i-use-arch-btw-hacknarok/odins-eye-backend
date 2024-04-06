@@ -4,7 +4,7 @@ datasource db {
 }
 
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 model Conference {
@@ -12,4 +12,24 @@ model Conference {
   topic     String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  Video     Video[]
+}
+
+model Video {
+  id           String     @id @default(cuid())
+  conferenceId String     @map("conference_id")
+  conference   Conference @relation(fields: [conferenceId], references: [id])
+  file         File       @relation(fields: [fileId], references: [id])
+  fileId       String     @map("file_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+}
+
+model File {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  Video     Video[]
 }
