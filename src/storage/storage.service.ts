@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger, UnprocessableEntityException } from '@nestjs/common';
 import { AwsConfig, awsConfig } from '@src/config/aws.config';
 import { DbService } from '@src/db/db.service';
 import { S3 } from 'aws-sdk';
@@ -7,6 +7,7 @@ import { InjectAwsService } from 'nest-aws-sdk';
 @Injectable()
 export class StorageService {
   private readonly bucketName: string;
+  private readonly logger = new Logger(StorageService.name);
 
   constructor(
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -21,14 +22,23 @@ export class StorageService {
   public async uploadFile(file: Express.Multer.File) {
     const randomFileName = `${Date.now()}-${file.originalname}`; // very good mock, 10/10, would use in production
 
-    const uploadResult = await this.s3Service
-      .upload({
-        Bucket: this.bucketName,
-        Key: randomFileName,
-        Body: file.buffer,
-      })
-      .promise();
+    this.logger.log(`Uploading file ${randomFileName}`);
 
+    let uploadResult: S3.ManagedUpload.SendData;
+
+    try {
+      uploadResult = await this.s3Service
+        .upload({
+          Bucket: this.bucketName,
+          Key: randomFileName,
+          Body: file.buffer,
+        })
+        .promise();
+    } catch (error) {
+      this.logger.error('Failed to upload file');
+      this.logger.error(error);
+      throw new UnprocessableEntityException('Failed to upload file');
+    }
     return await this.dbService.file.create({
       data: {
         name: randomFileName,
