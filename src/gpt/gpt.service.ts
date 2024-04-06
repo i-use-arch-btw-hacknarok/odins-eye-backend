@@ -15,6 +15,15 @@ export class GptService {
     this.openapi = new OpenAI({ apiKey });
   }
 
+  @OnEvent('transcription.added')
+  public async generateTags(videoId: string) {
+    const transcriptions = await this.dbService.transcription.findMany({
+      where: {
+        videoId,
+      },
+    });
+  }
+
   @OnEvent('emotions.added')
   @OnEvent('transcription.added')
   public async getConferenceImprovementProposal(videoId: string) {

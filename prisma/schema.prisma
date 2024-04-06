@@ -10,6 +10,7 @@ generator client {
 model Conference {
   id        String   @id @default(cuid())
   topic     String
+  tags      String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   videoId   String?  @map("video_id")
