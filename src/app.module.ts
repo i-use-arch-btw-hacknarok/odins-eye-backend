@@ -4,8 +4,9 @@ import { HealthModule } from './health/health.module';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { DbModule } from './db/db.module';
 import { UtilsModule } from './utils/utils.module';
+import { ConferencesModule } from './conferences/conferences.module';
 
 @Module({
-  imports: [AppConfigModule, HealthModule, PrometheusModule.register(), DbModule, UtilsModule],
+  imports: [AppConfigModule, HealthModule, PrometheusModule.register(), DbModule, UtilsModule, ConferencesModule],
 })
 export class AppModule {}
