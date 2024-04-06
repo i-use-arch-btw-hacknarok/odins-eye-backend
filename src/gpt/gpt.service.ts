@@ -32,6 +32,8 @@ export class GptService {
       throw new Error('No engagement or transcriptions found');
     }
 
+    this.logger.log(`Creating proposal for video ${videoId}`);
+
     const prompt = `
       Create a conference improvement proposal based on the following data:
 
@@ -99,16 +101,14 @@ ${transcriptions
 
         Proposal:`;
 
-    this.logger.log(`Prompt:\n${prompt}`);
-
     const completion = await this.createCompletion(prompt);
     const completionContent = completion.choices[0].message.content;
+
+    this.logger.log(`Proposal for video ${videoId} created`);
 
     if (!completionContent) {
       throw new Error('Failed to generate proposal');
     }
-
-    this.logger.log(`Generated proposal: ${completionContent}`);
 
     const completionProposalJson = JSON.parse(completionContent);
     await Promise.all(
