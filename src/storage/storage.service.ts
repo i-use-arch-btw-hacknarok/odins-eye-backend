@@ -9,6 +9,8 @@ export class StorageService {
   private readonly bucketName: string;
 
   constructor(
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     @InjectAwsService(S3) private readonly s3Service: S3,
     @Inject(awsConfig.KEY) { bucketName }: AwsConfig,
     private readonly dbService: DbService,
