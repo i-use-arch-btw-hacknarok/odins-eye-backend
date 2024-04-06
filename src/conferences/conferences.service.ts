@@ -41,7 +41,8 @@ export class ConferencesService {
 
   public async addVideoToConference(conferenceId: ID, file: Express.Multer.File) {
     this.logger.log(`Adding video to conference ${conferenceId}`);
-    const fileModel = await this.storageService.uploadFile(file);
+    const path = '/raw-videos';
+    const fileModel = await this.storageService.uploadMulterFile(file, path);
 
     this.logger.log(`Creating video record for file ${fileModel.id}`);
     return await this.dbService.video.create({
