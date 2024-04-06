@@ -28,7 +28,8 @@ export class VideoManipulationService {
 
     this.logger.log(`Converting file ${fileName}`);
 
-    const outputFileName = `${fileName}.mov`;
+    const fileNameWithoutExtension = fileName.split('.').slice(0, -1).join('.');
+    const outputFileName = `${fileNameWithoutExtension}.mov`;
     const outputFilePath = `${temporaryDir}/${outputFileName}`;
 
     await new Promise((resolve, reject) => {

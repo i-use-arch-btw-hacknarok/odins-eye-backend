@@ -21,6 +21,94 @@ export class EmotionExtractorService {
   }
 
   public async processVideo(videoId: string) {
+    const rekoResponse = await this.sendVideoToRekognition(videoId);
+
+    const emotionsWithTimestamps = rekoResponse.Faces?.flatMap(({ Face, Timestamp }) => {
+      if (!Face || !Timestamp) {
+        return [];
+      }
+
+      const { Emotions } = Face;
+
+      if (!Emotions) {
+        return [];
+      }
+
+      const validEmotions = Emotions.filter((emotion) => emotion.Confidence && emotion.Type);
+      return validEmotions.map((emotion) => ({
+        timestamp: Timestamp,
+        type: emotion.Type,
+        confidence: emotion.Confidence,
+      }));
+    });
+
+    if (!emotionsWithTimestamps) {
+      throw new Error('No emotions found');
+    }
+
+    const timestampsWithEmotionsAcc: Record<
+      number,
+      Array<{ emotion: string; confidence: number }>
+    > = {};
+
+    emotionsWithTimestamps.forEach(({ timestamp, type, confidence }) => {
+      const timestampInSeconds = Math.floor(timestamp);
+      if (!timestampsWithEmotionsAcc[timestampInSeconds]) {
+        timestampsWithEmotionsAcc[timestampInSeconds] = [];
+      }
+
+      timestampsWithEmotionsAcc[timestampInSeconds].push({
+        emotion: type!,
+        confidence: confidence!,
+      });
+    });
+
+    const FOCUSED_EMOTIONS = ['HAPPY', 'ANGRY', 'CONFUSED', 'DISGUSTED', 'SURPRISED'];
+    const NOT_FOCUSED_EMOTIONS = ['CALM', 'SAD'];
+
+    const timestampsWithEmotions = Object.entries(timestampsWithEmotionsAcc).map(
+      ([timestamp, emotions]) => {
+        const focusedEmotions = emotions.filter(({ emotion }) =>
+          FOCUSED_EMOTIONS.includes(emotion),
+        );
+        const notFocusedEmotions = emotions.filter(({ emotion }) =>
+          NOT_FOCUSED_EMOTIONS.includes(emotion),
+        );
+
+        const focusedEmotionsConfidence = focusedEmotions.reduce(
+          (acc, { confidence }) => acc + confidence,
+          0,
+        );
+        const notFocusedEmotionsConfidence = notFocusedEmotions.reduce(
+          (acc, { confidence }) => acc + confidence,
+          0,
+        );
+
+        const totalConfidence = focusedEmotionsConfidence + notFocusedEmotionsConfidence;
+        const score = focusedEmotionsConfidence / totalConfidence;
+        const percentage = score * 100;
+
+        return {
+          timestamp: Number(timestamp),
+          focusedEmotion: percentage,
+        };
+      },
+    );
+
+    await Promise.all(
+      timestampsWithEmotions.map(({ timestamp, focusedEmotion }) =>
+        this.dbService.engagement.create({
+          data: {
+            timestamp,
+            engagementPercentage: focusedEmotion,
+            video: { connect: { id: videoId } },
+          },
+        }),
+      ),
+    );
+  }
+
+  private async sendVideoToRekognition(videoId: string) {
     this.logger.log(`Processing video ${videoId}`);
     const video = await this.dbService.video.findUnique({
       where: {
@@ -45,9 +133,10 @@ export class EmotionExtractorService {
         Video: {
           S3Object: {
             Bucket: this.bucketName,
-            Name: processedVideo.url,
+            Name: processedVideo.name,
           },
         },
+        FaceAttributes: 'ALL',
       })
       .promise();
 
@@ -61,7 +150,6 @@ export class EmotionExtractorService {
     const jobResult = await this.awaitJobCompletion(JobId);
     this.logger.log(`Face detection job for video ${videoId} completed`);
 
-    this.logger.log(JSON.stringify(jobResult, null, 2));
     return jobResult;
   }
 
@@ -81,9 +169,5 @@ export class EmotionExtractorService {
 
       await new Promise((resolve) => setTimeout(resolve, 5000));
     }
-  }
-
-  public async onApplicationBootstrap() {
-    this.processVideo('cluo9qiv6000312gpgcpeo1eu');
   }
 }

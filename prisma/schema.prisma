@@ -16,13 +16,14 @@ model Conference {
 }
 
 model Video {
-  id           String     @id @default(cuid())
-  conferenceId String     @map("conference_id")
-  conference   Conference @relation(fields: [conferenceId], references: [id])
-  file         File       @relation(fields: [fileId], references: [id])
-  fileId       String     @map("file_id")
-  createdAt    DateTime   @default(now()) @map("created_at")
-  updatedAt    DateTime   @updatedAt @map("updated_at")
+  id           String       @id @default(cuid())
+  conferenceId String       @map("conference_id")
+  conference   Conference   @relation(fields: [conferenceId], references: [id])
+  file         File         @relation(fields: [fileId], references: [id])
+  fileId       String       @map("file_id")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+  Engagement   Engagement[]
 }
 
 model File {
@@ -32,4 +33,14 @@ model File {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   Video     Video[]
+}
+
+model Engagement {
+  id                   String   @id @default(cuid())
+  videoId              String   @map("video_id")
+  video                Video    @relation(fields: [videoId], references: [id])
+  timestamp            Int
+  engagementPercentage Float    @map("engagement_percentage")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
 }
