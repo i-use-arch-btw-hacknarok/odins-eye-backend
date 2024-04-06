@@ -6,18 +6,26 @@ import { DbModule } from './db/db.module';
 import { UtilsModule } from './utils/utils.module';
 import { ConferencesModule } from './conferences/conferences.module';
 import { AwsSdkModule } from 'nest-aws-sdk';
-import { requiredEnv } from './config/helpers/requiredEnv';
 import { StorageModule } from './storage/storage.module';
+import { AWS_CONFIG_KEY } from './config/aws.config';
 import { S3 } from 'aws-sdk';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    AwsSdkModule.forRoot({
+    AwsSdkModule.forRootAsync({
       defaultServiceOptions: {
-        region: 'eu-central-1',
-        credentials: {
-          accessKeyId: requiredEnv('AWS_ACCESS_KEY_ID'),
-          secretAccessKey: requiredEnv('AWS_SECRET_ACCESS_KEY'),
+        imports: [AppConfigModule],
+        inject: [ConfigService],
+        useFactory: (configService: ConfigService) => {
+          const awsConfig = configService.getOrThrow(AWS_CONFIG_KEY);
+          return {
+            region: awsConfig.region,
+            credentials: {
+              accessKeyId: awsConfig.accessKeyId,
+              secretAccessKey: awsConfig.secretAccessKey,
+            },
+          };
         },
       },
       services: [S3],
