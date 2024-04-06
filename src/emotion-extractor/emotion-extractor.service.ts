@@ -98,7 +98,7 @@ export class EmotionExtractorService {
     );
 
     await Promise.all(
-      timestampsWithEmotions.map(({ timestamp, focusedEmotion }) =>
+      timestampsWithEmotions.map(async ({ timestamp, focusedEmotion }) =>
         this.dbService.engagement.create({
           data: {
             timestamp,

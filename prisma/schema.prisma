@@ -12,19 +12,19 @@ model Conference {
   topic     String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  Video     Video[]
+  videoId   String?  @map("video_id")
+  Video     Video?   @relation(fields: [videoId], references: [id])
 }
 
 model Video {
   id            String          @id @default(cuid())
-  conferenceId  String          @map("conference_id")
-  conference    Conference      @relation(fields: [conferenceId], references: [id])
   file          File            @relation(fields: [fileId], references: [id])
   fileId        String          @map("file_id")
   createdAt     DateTime        @default(now()) @map("created_at")
   updatedAt     DateTime        @updatedAt @map("updated_at")
   Engagement    Engagement[]
   Transcription Transcription[]
+  Conference    Conference[]
 }
 
 model File {
@@ -38,20 +38,20 @@ model File {
 
 model Transcription {
   id        String   @id @default(cuid())
-  videoId   String   @map("video_id")
-  video     Video    @relation(fields: [videoId], references: [id])
   text      String
   endTime   Int      @map("end_time")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  video     Video    @relation(fields: [videoId], references: [id])
+  videoId   String   @map("video_id")
 }
 
 model Engagement {
   id                   String   @id @default(cuid())
-  videoId              String   @map("video_id")
-  video                Video    @relation(fields: [videoId], references: [id])
   timestamp            Int
   engagementPercentage Float    @map("engagement_percentage")
   createdAt            DateTime @default(now()) @map("created_at")
   updatedAt            DateTime @updatedAt @map("updated_at")
+  video                Video    @relation(fields: [videoId], references: [id])
+  videoId              String   @map("video_id")
 }

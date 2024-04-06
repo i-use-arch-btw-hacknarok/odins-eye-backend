@@ -19,11 +19,23 @@ export class ConferencesService {
   }
 
   public async getConferenceById(id: ID) {
-    return this.dbService.conference.findUnique({
+    const result = await this.dbService.conference.findUnique({
       where: {
         id,
       },
+      include: {
+        Video: {
+          include: {
+            file: true,
+            Transcription: true,
+          },
+        },
+      },
     });
+
+    if (!result) {
+      throw new Error('Conference not found');
+    }
   }
 
   public async createConference(data: Prisma.ConferenceCreateInput) {
@@ -49,7 +61,19 @@ export class ConferencesService {
     const video = await this.dbService.video.create({
       data: {
         file: { connect: { id: fileModel.id } },
-        conference: { connect: { id: conferenceId } },
+      },
+    });
+
+    await this.dbService.conference.update({
+      where: {
+        id: conferenceId,
+      },
+      data: {
+        Video: {
+          connect: {
+            id: video.id,
+          },
+        },
       },
     });
 
