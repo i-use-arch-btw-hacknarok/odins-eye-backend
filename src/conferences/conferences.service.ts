@@ -26,8 +26,8 @@ export class ConferencesService {
       include: {
         Video: {
           include: {
-            file: true,
             Transcription: true,
+            Engagement: true,
           },
         },
       },
@@ -36,6 +36,11 @@ export class ConferencesService {
     if (!result) {
       throw new Error('Conference not found');
     }
+
+    const ready =
+      (result.Video?.Engagement?.length ?? 0) > 0 && (result.Video?.Transcription?.length ?? 0) > 0;
+
+    return { ...result, isPies: ready };
   }
 
   public async createConference(data: Prisma.ConferenceCreateInput) {
