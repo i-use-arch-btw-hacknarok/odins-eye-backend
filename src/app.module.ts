@@ -8,11 +8,12 @@ import { ConferencesModule } from './conferences/conferences.module';
 import { AwsSdkModule } from 'nest-aws-sdk';
 import { StorageModule } from './storage/storage.module';
 import { AWS_CONFIG_KEY } from './config/aws.config';
-import { Rekognition, S3 } from 'aws-sdk';
+import { Rekognition, S3, TranscribeService } from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
 import { EmotionExtractorModule } from './emotion-extractor/emotion-extractor.module';
 import { VideoManipulationModule } from './video-manipulation/video-manipulation.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { SttModule } from './stt/stt.module';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
           };
         },
       },
-      services: [S3, Rekognition],
+      services: [S3, Rekognition, TranscribeService],
     }),
     AppConfigModule,
     HealthModule,
@@ -43,6 +44,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     StorageModule,
     EmotionExtractorModule,
     VideoManipulationModule,
+    SttModule,
   ],
 })
 export class AppModule {}
