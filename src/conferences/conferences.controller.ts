@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ConferencesService } from './conferences.service';
-import { Prisma } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ConferenceCreateInput } from './conferences.dto';
 
 @Controller('conferences')
 export class ConferencesController {
@@ -18,7 +18,7 @@ export class ConferencesController {
   }
 
   @Post()
-  public async createConference(@Body() data: Prisma.ConferenceCreateInput) {
+  public async createConference(@Body() data: ConferenceCreateInput) {
     return this.conferencesService.createConference(data);
   }
 
