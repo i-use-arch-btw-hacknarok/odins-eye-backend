@@ -19,9 +19,8 @@ export class StorageService {
     this.bucketName = bucketName;
   }
 
-  public async uploadMulterFile(file: Express.Multer.File, path: string) {
+  public async uploadMulterFile(file: Express.Multer.File) {
     const randomFileName = `${Date.now()}-${file.originalname}`; // very good mock, 10/10, would use in production
-    const randomFilePath = `${path}/${randomFileName}`;
 
     this.logger.log(`Uploading file ${randomFileName}`);
 
@@ -31,7 +30,7 @@ export class StorageService {
       uploadResult = await this.s3Service
         .upload({
           Bucket: this.bucketName,
-          Key: randomFilePath,
+          Key: randomFileName,
           Body: file.buffer,
         })
         .promise();

@@ -1,4 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
+import { Video } from '@prisma/client';
 import { AwsConfig, awsConfig } from '@src/config/aws.config';
 import { DbService } from '@src/db/db.service';
 import { VideoManipulationService } from '@src/video-manipulation/video-manipulation.service';
@@ -170,4 +172,13 @@ export class EmotionExtractorService {
       await new Promise((resolve) => setTimeout(resolve, 5000));
     }
   }
+
+  @OnEvent('video.added')
+  public async onVideoAdded(video: Video) {
+    return await this.processVideo(video.id);
+  }
+
+  //   public async onApplicationBootstrap2() {
+  //     this.processVideo('cluo9qiv6000312gpgcpeo1eu');
+  //   }
 }

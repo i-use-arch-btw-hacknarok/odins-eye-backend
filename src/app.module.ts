@@ -12,6 +12,7 @@ import { Rekognition, S3 } from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
 import { EmotionExtractorModule } from './emotion-extractor/emotion-extractor.module';
 import { VideoManipulationModule } from './video-manipulation/video-manipulation.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { VideoManipulationModule } from './video-manipulation/video-manipulation
     }),
     AppConfigModule,
     HealthModule,
+    EventEmitterModule.forRoot(),
     PrometheusModule.register(),
     DbModule,
     UtilsModule,
