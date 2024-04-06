@@ -22,6 +22,51 @@ export class GptService {
         videoId,
       },
     });
+
+    if (!transcriptions) {
+      throw new Error('No transcriptions found');
+    }
+
+    const sortedTranscriptions = transcriptions.sort((a, b) => a.endTime - b.endTime);
+    const fullText = sortedTranscriptions.map(({ text }) => text).join(' ');
+
+    this.logger.log(`Generating tags for video ${videoId}`);
+
+    const propmpt = `Generate tags for transcription of a conference.
+    There should be between 5 and 10 tags.
+    Tags should be separated by a comma.
+    Tags should be useful for categorizing the content of the conference.
+    Tags should improve the searchability of the conference.
+    Tags should be relevant to the content of the conference.
+    Tags should be in the same language as the original text.
+
+    Example:
+    Input:
+      To jest konferencja o programowaniu w języku Python. Na konferencji mówiono o frameworku Django.
+
+    Output:
+      #Python, #Django, #programowanie, #konferencja, #framework
+
+    This is the text of the conference:
+    ${fullText}
+
+    Tags:`;
+    const completion = await this.createCompletion(propmpt);
+
+    if (!completion) {
+      throw new Error('Failed to generate tags');
+    }
+
+    this.logger.log(`Tags for video ${videoId} generated`);
+
+    await this.dbService.conference.updateMany({
+      where: {
+        videoId,
+      },
+      data: {
+        tags: completion,
+      },
+    });
   }
 
   @OnEvent('emotions.added')
@@ -118,15 +163,14 @@ ${transcriptions
         Proposal:`;
 
     const completion = await this.createCompletion(prompt);
-    const completionContent = completion.choices[0].message.content;
 
     this.logger.log(`Proposal for video ${videoId} created`);
 
-    if (!completionContent) {
+    if (!completion) {
       throw new Error('Failed to generate proposal');
     }
 
-    const completionProposalJson = JSON.parse(completionContent);
+    const completionProposalJson = JSON.parse(completion);
     await Promise.all(
       completionProposalJson.map(async ({ timestamp, proposal }: any) => {
         await this.dbService.proposal.create({
@@ -143,9 +187,11 @@ ${transcriptions
   }
 
   private async createCompletion(prompt: string) {
-    return await this.openapi.chat.completions.create({
+    const completion = await this.openapi.chat.completions.create({
       model: 'gpt-3.5-turbo-16k',
       messages: [{ role: 'system', content: prompt }],
     });
+
+    return completion.choices[0].message.content;
   }
 }
