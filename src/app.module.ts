@@ -14,6 +14,7 @@ import { EmotionExtractorModule } from './emotion-extractor/emotion-extractor.mo
 import { VideoManipulationModule } from './video-manipulation/video-manipulation.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SttModule } from './stt/stt.module';
+import { GptModule } from './gpt/gpt.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { SttModule } from './stt/stt.module';
     EmotionExtractorModule,
     VideoManipulationModule,
     SttModule,
+    GptModule,
   ],
 })
 export class AppModule {}

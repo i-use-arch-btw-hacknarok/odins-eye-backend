@@ -41,6 +41,7 @@
     "fluent-ffmpeg": "^2.1.2",
     "nest-aws-sdk": "^3.0.1",
     "nest-logging-transport": "^1.2.3",
+    "openai": "^4.33.0",
     "prisma": "^5.11.0",
     "prom-client": "^15.1.1",
     "reflect-metadata": "^0.2.2",

@@ -22,9 +22,20 @@ model Video {
   fileId        String          @map("file_id")
   createdAt     DateTime        @default(now()) @map("created_at")
   updatedAt     DateTime        @updatedAt @map("updated_at")
+  Proposals     Proposal[]
   Engagement    Engagement[]
   Transcription Transcription[]
   Conference    Conference[]
+}
+
+model Proposal {
+  id        String   @id @default(cuid())
+  text      String
+  timestamp Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  video     Video    @relation(fields: [videoId], references: [id])
+  videoId   String   @map("video_id")
 }
 
 model File {

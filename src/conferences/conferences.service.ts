@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Prisma } from '@prisma/client';
 import { DbService } from '@src/db/db.service';
+import { GptService } from '@src/gpt/gpt.service';
 import { StorageService } from '@src/storage/storage.service';
 import { ID } from '@src/utils/globalTypes';
 
@@ -11,11 +12,32 @@ export class ConferencesService {
   constructor(
     private readonly dbService: DbService,
     private readonly storageService: StorageService,
+    private readonly gptService: GptService,
     private eventEmitter: EventEmitter2,
   ) {}
 
   public async getConferences() {
     return this.dbService.conference.findMany();
+  }
+
+  public async suggestConferenceName(id: string) {
+    const conference = await this.dbService.conference.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!conference) {
+      throw new Error('Conference not found');
+    }
+
+    if (!conference.videoId) {
+      throw new Error('Conference has no video');
+    }
+
+    const suggestions = await this.gptService.getConferenceImprovementProposal(conference.videoId);
+
+    return suggestions;
   }
 
   public async getConferenceById(id: ID) {
@@ -28,6 +50,7 @@ export class ConferencesService {
           include: {
             Transcription: true,
             Engagement: true,
+            Proposals: true,
           },
         },
       },

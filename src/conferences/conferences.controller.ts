@@ -41,4 +41,9 @@ export class ConferencesController {
     this.logger.log(`Adding video to conference ${id}`);
     return this.conferencesService.addVideoToConference(id, file);
   }
+
+  @Post(':id/proposals')
+  public async suggestConferenceName(@Param('id') id: string) {
+    return this.conferencesService.suggestConferenceName(id);
+  }
 }
