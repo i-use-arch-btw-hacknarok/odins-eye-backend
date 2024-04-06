@@ -1,0 +1,22 @@
+{
+  "commitUrlFormat": "https://github.com/kuskoman/project-management-app-vue/commit/{{hash}}",
+  "compareUrlFormat": "https://github.com/kuskoman/project-management-app-vue/compare/{{previousTag}}...{{currentTag}}",
+  "issueUrlFormat": "https://github.com/kuskoman/project-management-app-vue/issues/{{id}}",
+  "userUrlFormat": "https://github.com/{{user}}",
+  "types": [
+    { "type": "feat", "section": "Features" },
+    { "type": "feature", "section": "Features" },
+    { "type": "fix", "section": "Bug Fixes" },
+    { "type": "perf", "section": "Performance Improvements" },
+    { "type": "revert", "section": "Reverts" },
+    { "type": "docs", "section": "Documentation" },
+    { "type": "style", "section": "Styles", "hidden": true },
+    { "type": "chore", "section": "Miscellaneous Chores", "hidden": true },
+    { "type": "refactor", "section": "Code Refactoring" },
+    { "type": "test", "section": "Tests" },
+    { "type": "build", "section": "Build Configuration" },
+    { "type": "ci", "section": "Continuous Integration" },
+    { "type": "cd", "section": "Continuous Deployment" },
+    { "type": "perf", "section": "Performance Improvements" }
+  ]
+}
