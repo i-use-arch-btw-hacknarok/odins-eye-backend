@@ -162,15 +162,25 @@ ${transcriptions
 
         Proposal:`;
 
-    const completion = await this.createCompletion(prompt);
+    let completionProposalJson: any;
+    let i = 0;
+    while (i < 5) {
+      const completion = await this.createCompletion(prompt);
+      if (!completion) {
+        continue;
+      }
+      try {
+        completionProposalJson = JSON.parse(completion);
+        break;
+      } catch (error) {
+        this.logger.error('Failed to parse completion');
+        this.logger.error(error);
+        i++;
+      }
+    }
 
     this.logger.log(`Proposal for video ${videoId} created`);
 
-    if (!completion) {
-      throw new Error('Failed to generate proposal');
-    }
-
-    const completionProposalJson = JSON.parse(completion);
     await Promise.all(
       completionProposalJson.map(async ({ timestamp, proposal }: any) => {
         await this.dbService.proposal.create({
