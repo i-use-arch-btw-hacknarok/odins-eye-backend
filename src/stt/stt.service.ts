@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Video } from '@prisma/client';
 import { awsConfig, AwsConfig } from '@src/config/aws.config';
 import { DbService } from '@src/db/db.service';
@@ -18,6 +18,7 @@ export class SttService {
     @InjectAwsService(TranscribeService) private readonly transcribeService: TranscribeService,
     private readonly dbService: DbService,
     private readonly storageService: StorageService,
+    private readonly eventEmitter: EventEmitter2,
     @Inject(awsConfig.KEY) { bucketName }: AwsConfig,
   ) {
     this.bucketName = bucketName;
@@ -120,6 +121,9 @@ export class SttService {
         });
       }),
     );
+
+    this.logger.log(`Transcription for video ${videoId} processed`);
+    this.eventEmitter.emit('transcription.added', videoId);
   }
 
   private async awaitJobCompletion(jobName: string) {

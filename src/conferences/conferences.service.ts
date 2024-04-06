@@ -20,7 +20,7 @@ export class ConferencesService {
     return this.dbService.conference.findMany();
   }
 
-  public async suggestConferenceName(id: string) {
+  public async suggestConferenceImprovement(id: string) {
     const conference = await this.dbService.conference.findUnique({
       where: {
         id,

@@ -1,4 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
 import { GptConfig, gptConfig } from '@src/config/gpt.config';
 import { DbService } from '@src/db/db.service';
 import OpenAI from 'openai';
@@ -14,6 +15,8 @@ export class GptService {
     this.openapi = new OpenAI({ apiKey });
   }
 
+  @OnEvent('emotions.added')
+  @OnEvent('transcription.added')
   public async getConferenceImprovementProposal(videoId: string) {
     const video = await this.dbService.video.findUnique({
       where: {
@@ -29,6 +32,10 @@ export class GptService {
     const transcriptions = video?.Transcription;
 
     if (!engagement || !transcriptions) {
+      throw new Error('No engagement or transcriptions found');
+    }
+
+    if (engagement.length === 0 || transcriptions.length === 0) {
       throw new Error('No engagement or transcriptions found');
     }
 

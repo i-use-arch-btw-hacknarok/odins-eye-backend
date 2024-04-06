@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { OnEvent } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Video } from '@prisma/client';
 import { AwsConfig, awsConfig } from '@src/config/aws.config';
 import { DbService } from '@src/db/db.service';
@@ -18,6 +18,7 @@ export class EmotionExtractorService {
     private readonly dbService: DbService,
     @Inject(awsConfig.KEY) { bucketName }: AwsConfig,
     private readonly videoManipulationService: VideoManipulationService,
+    private readonly eventEmitter: EventEmitter2,
   ) {
     this.bucketName = bucketName;
   }
@@ -108,6 +109,9 @@ export class EmotionExtractorService {
         }),
       ),
     );
+
+    this.logger.log(`Emotions for video ${videoId} processed`);
+    this.eventEmitter.emit('emotions.added', videoId);
   }
 
   private async sendVideoToRekognition(videoId: string) {

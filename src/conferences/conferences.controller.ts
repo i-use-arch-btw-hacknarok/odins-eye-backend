@@ -43,7 +43,7 @@ export class ConferencesController {
   }
 
   @Post(':id/proposals')
-  public async suggestConferenceName(@Param('id') id: string) {
-    return this.conferencesService.suggestConferenceName(id);
+  public async suggestConferenceImprovement(@Param('id') id: string) {
+    return this.conferencesService.suggestConferenceImprovement(id);
   }
 }
