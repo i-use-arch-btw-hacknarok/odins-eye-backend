@@ -17,10 +17,12 @@ export class StorageService {
   }
 
   public async uploadFile(file: Express.Multer.File) {
+    const randomFileName = `${Date.now()}-${file.originalname}`; // very good mock, 10/10, would use in production
+
     const uploadResult = await this.s3Service
       .upload({
         Bucket: this.bucketName,
-        Key: file.originalname,
+        Key: randomFileName,
         Body: file.buffer,
       })
       .promise();
