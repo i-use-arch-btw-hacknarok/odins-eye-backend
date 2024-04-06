@@ -31,7 +31,7 @@ export class StorageService {
 
     return await this.dbService.file.create({
       data: {
-        name: file.originalname,
+        name: randomFileName,
         url: uploadResult.Location,
       },
     });
