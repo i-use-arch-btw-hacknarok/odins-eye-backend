@@ -17,7 +17,9 @@ export class ConferencesService {
   ) {}
 
   public async getConferences() {
-    return this.dbService.conference.findMany();
+    return this.dbService.conference.findMany({
+      orderBy: [{ createdAt: 'desc' }],
+    });
   }
 
   public async suggestConferenceImprovement(id: string) {
