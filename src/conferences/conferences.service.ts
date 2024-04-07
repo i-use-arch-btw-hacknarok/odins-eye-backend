@@ -48,9 +48,13 @@ export class ConferencesService {
       include: {
         Video: {
           include: {
-            Transcription: true,
+            Transcription: {
+              orderBy: [{ endTime: 'asc' }],
+            },
             Engagement: true,
-            Proposals: true,
+            Proposals: {
+              orderBy: [{ timestamp: 'asc' }],
+            },
           },
         },
       },
